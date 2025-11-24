@@ -268,63 +268,47 @@ Shape
 
  
 
-pipeline { 
+pipeline {
+    agent any
+    
+    tools {
+        maven 'MAVEN-HOME'
+    }
 
-agent any 
+    stages {
 
-   tools{ 
+        stage('git repo & clean') {
+            steps {
+                // Delete old folder if it exists
+                bat 'rmdir /s /q MAVEN2 || exit /b 0'
 
-        maven 'MAVEN-HOME' 
+                // Clone fresh repository
+                bat 'git clone https://github.com/Anirudh-KMIT/MAVEN2.git'
 
-    } 
+                // Clean the project
+                bat 'mvn clean -f MAVEN2/pom.xml'
+            }
+        }
 
-    stages { 
+        stage('install') {
+            steps {
+                bat 'mvn install -f MAVEN2/pom.xml'
+            }
+        }
 
-        stage('git repo & clean') { 
+        stage('test') {
+            steps {
+                bat 'mvn test -f MAVEN2/pom.xml'
+            }
+        }
 
-            steps { 
-
-                bat "git clone <provide your github link>" 
-
-                bat "mvn clean -f mavenjava" 
-
-            } 
-
-        } 
-
-        stage('install') { 
-
-            steps { 
-
-                bat "mvn install -f mavenjava" 
-
-            } 
-
-        } 
-
-        stage('test') { 
-
-            steps { 
-
-                bat "mvn test -f mavenjava" 
-
-            } 
-
-        } 
-
-        stage('package') { 
-
-            steps { 
-
-                bat "mvn package -f mavenjava" 
-
-            } 
-
-        } 
-
-    } 
-
-} 
+        stage('package') {
+            steps {
+                bat 'mvn package -f MAVEN2/pom.xml'
+            }
+        }
+    }
+}
 
  
 
@@ -643,3 +627,4 @@ sudo docker stop <container id>
 
 
  
+
